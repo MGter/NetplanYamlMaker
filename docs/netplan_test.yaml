@@ -1,0 +1,10 @@
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+  dhcp4: false
+    ens33:
+      routes:
+        - to: "default"
+          via: "192.165.139.2"

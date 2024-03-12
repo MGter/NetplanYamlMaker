@@ -1,0 +1,35 @@
+Netplan_Bond* NetplanConfigMaker::parseBondsInfo(YAML::Node& node){
+    if(!node.IsDefined() || node.IsNull()){
+        return nullptr;
+    }
+    
+    Netplan_Bond* bonds = new Netplan_Bond;
+    auto iter = node.begin();
+    std::string name = iter->first.as<std::string>();
+    bonds->setName(name);
+    
+    // add addresses when yaml-cpp can find one
+    if(!node["dhcp4"].IsDefined()){
+        std::cout << "dhcp4 is not defined" << std::endl;
+    }
+    if(!node["dhcp4"].IsNull()){
+        std::cout << "dhcp4 is null" << std::endl;
+    }
+
+    int size = node.size();
+    for(int i = 0; i < size; i++){
+        YAML::Node bond_yaml_node = node[i];
+        Netplan_Bond* bond = new Netplan_Bond;
+        bool ans =  Netplan_Bond::parseYamlNode(bond_yaml_node, bond, name);
+
+        if(ans){
+            _bonds.push_back(bond);
+        }
+        else{
+            delete bond;
+        }
+
+    }
+
+    return bonds;
+}
