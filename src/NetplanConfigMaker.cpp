@@ -166,14 +166,14 @@ bool Netplan_Device::delAddress(Netplan_Address* address){
 
 }
 
-bool Netplan_Device::delAddressByIpTask(const std::string& ip_task){
-    if(!isValidIpMask(ip_task)){
+bool Netplan_Device::delAddressByIpMask(const std::string& ip_mask){
+    if(!isValidIpMask(ip_mask)){
         return false;
     }
 
     for(auto iter = _addresses.begin(); iter != _addresses.end(); iter++){
         Netplan_Address* address = *iter;
-        if(address->ip_mask == ip_task){
+        if(address->ip_mask == ip_mask){
             _addresses.erase(iter);
             return true;
         }
@@ -277,9 +277,9 @@ int Netplan_Device::findAddressPosition(const std::string& ip, const std::string
 
     std::string ip_mask = combineIpAndMask(ip, mask);
     // for loop to find it. 
-    int position = -1;
+    int position = 0;
     for(auto iter = _addresses.begin(); iter != _addresses.end(); iter++, position++){
-        if(ip == (*iter)->ip_mask){
+        if(ip_mask == (*iter)->ip_mask){
             return position;
         }
     }
@@ -586,20 +586,6 @@ YAML::Node Netplan_Device::generateYamlNode(){
     YAML::Node yaml_node;
     // dhcp4 node
     yaml_node["dhcp4"] = _dhcp4;
-
-    /*
-    // debug address
-    addAddress("192.168.139.200", "255.255.255.0");
-    addVitualAddress("192.168.139.201", "255.255.255.0");
-
-    // debug routes
-    addRoute("default", "255.255.255.0", "192.168.139.2");
-    addRoute("192.165.56.12", "255.255.255.0", "192.165.56.1");
-
-    // debug nameservers
-    addNameServers("8.8.8.8");
-    addNameServers("defgasd");
-    */
 
     //address list node
     if(!_addresses.empty()){
@@ -1431,4 +1417,266 @@ bool executeShellCommand(const std::string& command){
         std::cout << "Command: " << command << ", succeed!" << std::endl;
         return true;
     }
+}
+
+bool NetplanConfigMaker::addAddress(const std::string& dev_name, const std::string& ip, const std::string& mask){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        if(!dev_p->addAddress(ip, mask))
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
+
+}
+
+
+bool NetplanConfigMaker::delAddress(const std::string& dev_name, const std::string& ip, const std::string& mask){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        std::cout << "Find a Ethernet" << std::endl;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        std::cout << "Find a Bond" << std::endl;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        std::cout << "Find a Bridge" << std::endl;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        std::cout << "Find a Vlan" << std::endl;
+
+    if(dev_p){
+        if(!dev_p->delAddress(ip, mask))
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
+}
+
+bool NetplanConfigMaker::addVitualAddress(const std::string& dev_name, const std::string& ip, const std::string& mask){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        if(!dev_p->addVitualAddress(ip, mask))
+            return false;
+        else
+            return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool NetplanConfigMaker::delVitualAddress(const std::string& dev_name, const std::string& ip, const std::string& mask){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        if(!dev_p->delVitualAddress(ip, mask))
+            return false;
+        else
+            return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool NetplanConfigMaker::addRoute(const std::string& dev_name,  const std::string& ip, const std::string& mask, const std::string& via){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        if(!dev_p->addRoute(ip, mask, via))
+            return false;
+        else
+            return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool NetplanConfigMaker::delRoute(const std::string& dev_name,  const std::string& ip, const std::string& mask, const std::string& via){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        dev_p->delRoute(ip, mask, via);
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool NetplanConfigMaker::addNameServers(const std::string& dev_name, const std::string& nameserver){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        dev_p->addNameServers(nameserver);
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool NetplanConfigMaker::delNameServers(const std::string& dev_name, const std::string& nameserver){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        dev_p->delNameServers(nameserver);
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+// 查看当前dev_name是否存在
+Netplan_Ethernet* NetplanConfigMaker::isEthernet(const std::string& dev_name){
+    if(dev_name == "" || _ethernets.empty())
+        return nullptr;
+
+    for(auto iter = _ethernets.begin(); iter != _ethernets.end(); iter++){
+        auto ethernet_p = *iter;
+        if(dev_name == ethernet_p->getName())
+            return ethernet_p;
+    }
+    return nullptr;
+}
+
+// 查看当前dev_name是否存在
+Netplan_Bond* NetplanConfigMaker::isBond(const std::string& dev_name){
+    if(dev_name == "" || _bonds.empty())
+        return nullptr;
+
+    for(auto iter = _bonds.begin(); iter != _bonds.end(); iter++){
+        auto bond_p = *iter;
+        if(dev_name == bond_p->getName())
+            return bond_p;
+    }
+    return nullptr;
+}
+
+// 查看当前dev_name是否存在
+Netplan_Bridge* NetplanConfigMaker::isBridge(const std::string& dev_name){
+    if(dev_name == "" || _bridges.empty())
+        return nullptr;
+
+    for(auto iter = _bridges.begin(); iter != _bridges.end(); iter++){
+        auto bridge_p = *iter;
+        if(dev_name == bridge_p->getName())
+            return bridge_p;
+    }
+    return nullptr;
+}
+
+// 查看当前dev_name是否存在
+Netplan_Vlan* NetplanConfigMaker::isVlan(const std::string& dev_name){
+    if(dev_name == "" || _vlans.empty())
+        return nullptr;
+
+    for(auto iter = _vlans.begin(); iter != _vlans.end(); iter++){
+        auto vlan_p = *iter;
+        if(dev_name == vlan_p->getName())
+            return vlan_p;
+    }
+    return nullptr;
 }

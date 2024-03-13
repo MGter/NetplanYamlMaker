@@ -55,7 +55,7 @@ public:
     bool addAddress(const std::string& ip, const std::string& mask);
     bool delAddress(const std::string& ip, const std::string& mask);
     bool delAddress(Netplan_Address* address);
-    bool delAddressByIpTask(const std::string& ip_task);
+    bool delAddressByIpMask(const std::string& ip_mask);
 
     // vip, ip, mask and label_name
     bool addVitualAddress(const std::string& ip, const std::string& mask);
@@ -183,8 +183,34 @@ public:
     bool generateConfig(const std::string& config_path);
     bool applyConfig(const std::string& config_path); 
 
-   // set func
+    // set func
     bool setRenderer(const std::string& renderer);
+
+    // change address
+    bool addAddress(const std::string& dev_name, const std::string& ip, const std::string& mask);
+    bool delAddress(const std::string& dev_name, const std::string& ip, const std::string& mask);
+
+    // virtual address
+    bool addVitualAddress(const std::string& dev_name, const std::string& ip, const std::string& mask);
+    bool delVitualAddress(const std::string& dev_name, const std::string& ip, const std::string& mask);
+
+    // routes
+    bool addRoute(const std::string& dev_name, const std::string& ip, const std::string& mask, const std::string& via);
+    bool delRoute(const std::string& dev_name, const std::string& ip, const std::string& mask, const std::string& via);
+
+    // nameserver
+    bool addNameServers(const std::string& dev_name, const std::string& nameserver);
+    bool delNameServers(const std::string& dev_name, const std::string& nameserver);
+
+    // setbond
+    // ..............................
+
+    // setvlan
+    // ..............................
+
+    // set bridge
+    // ..............................
+
 
 private:
     // parsing the info from the YAML node
@@ -200,6 +226,11 @@ private:
     YAML::Node generateBridgesYamlNode();
     YAML::Node generateVlanYamlNode();
 
+    // find the pointer from the dev_name
+    Netplan_Ethernet* isEthernet(const std::string& dev_name);
+    Netplan_Bond* isBond(const std::string& dev_name);
+    Netplan_Bridge* isBridge(const std::string& dev_name);
+    Netplan_Vlan* isVlan(const std::string& dev_name);
 private:
    int _version;
    std::string _renderer;

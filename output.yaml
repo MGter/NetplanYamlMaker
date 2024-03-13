@@ -18,6 +18,8 @@ network:
   bonds:
     bond0:
       dhcp4: false
+      addresses:
+        - 155.155.155.1/24
       mode: 802.3ad
       interfaces:
         - ens33
