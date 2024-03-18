@@ -8,7 +8,13 @@
 #include <string>
 #include <bitset>
 #include <cstdlib>
+
+#ifdef LINUX
 #include <arpa/inet.h>
+#endif
+#ifdef WIN32
+#include <winsock2.h>
+#endif
 
 //-------------Netplan Device Node------------------
 class Netplan_Address{
@@ -74,12 +80,23 @@ public:
     bool delRoute(const std::string& dst_ip_mask);
     
     // name_server
-    bool addNameServers(const std::string& nameserver);
-    bool delNameServers(const std::string& nameserver);
+    bool addNameServer(const std::string& nameserver);
+    bool delNameServer(const std::string& nameserver);
 
     // generate yaml nodefparseYamlNode
     static bool parseYamlNode(YAML::Node& node, Netplan_Device* device, const std::string& name);
     virtual YAML::Node generateYamlNode();
+
+    // to find if this ip/mask is exist
+    bool hasAddress(const std::string& ip, const std::string& mask);
+    bool hasRoute(const std::string& ip, const std::string& mask, const std::stringt& via);
+    bool hasNameServer(const std::string& nameserver);
+
+private:
+    int findAddressPosition(const std::string& ip, const std::string& mask);
+    int findRoutePosition(const std::string& ip, const std::string& mask, const std::string& via);
+    int getMaskCodeCount(const std::string& mask);
+    std::string combineIpAndMask(const std::string& ip, const std::string& mask);
 
     // some static fund
     static bool isValidIpv4(const std::string& ip);
@@ -88,12 +105,6 @@ public:
     static bool isValidIpMask(const std::string& ip_mask);
     static bool isValidIpMask(const std::string&ip, const std::string& mask);
     static bool isValidIpMask(const std::string&ip, int mask);
-
-private:
-    int findAddressPosition(const std::string& ip, const std::string& mask);
-    int findRoutePosition(const std::string& ip, const std::string& mask, const std::string& via);
-    int getMaskCodeCount(const std::string& mask);
-    std::string combineIpAndMask(const std::string& ip, const std::string& mask);
     
 private:
     std::string _name;
@@ -193,14 +204,15 @@ public:
     // virtual address
     bool addVitualAddress(const std::string& dev_name, const std::string& ip, const std::string& mask);
     bool delVitualAddress(const std::string& dev_name, const std::string& ip, const std::string& mask);
+    bool delVitualAddress(const std::string& ip, const std::string& mask);
 
     // routes
     bool addRoute(const std::string& dev_name, const std::string& ip, const std::string& mask, const std::string& via);
     bool delRoute(const std::string& dev_name, const std::string& ip, const std::string& mask, const std::string& via);
 
     // nameserver
-    bool addNameServers(const std::string& dev_name, const std::string& nameserver);
-    bool delNameServers(const std::string& dev_name, const std::string& nameserver);
+    bool addNameServer(const std::string& dev_name, const std::string& nameserver);
+    bool delNameServer(const std::string& dev_name, const std::string& nameserver);
 
     // setbond
     // ..............................

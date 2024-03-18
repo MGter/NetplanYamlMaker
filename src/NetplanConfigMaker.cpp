@@ -442,7 +442,7 @@ int Netplan_Device::findRoutePosition(const std::string& ip, const std::string& 
     }
 }
 
-bool Netplan_Device::addNameServers(const std::string& nameserver){
+bool Netplan_Device::addNameServer(const std::string& nameserver){
     if(!isValidIpv4(nameserver)){
         return false;
     }
@@ -701,14 +701,14 @@ bool Netplan_Device::parseYamlNode(YAML::Node& node, Netplan_Device* device, con
                     for(int i = 0; i < size; i++){
                         std::string nameserver_address = address_yaml_node[i].as<std::string>();
                         if(isValidIpv4(nameserver_address)){
-                            device->addNameServers(nameserver_address);
+                            device->addNameServer(nameserver_address);
                         }
                     }
                 }
                 else if(address_yaml_node.IsScalar()){
                     std::string nameserver_address = address_yaml_node.as<std::string>();
                     if(isValidIpv4(nameserver_address)){
-                        device->addNameServers(nameserver_address);
+                        device->addNameServer(nameserver_address);
                     }
                 }
             }
@@ -718,8 +718,8 @@ bool Netplan_Device::parseYamlNode(YAML::Node& node, Netplan_Device* device, con
     return true;
 }
 
-// ----------------for derived device--------------------//
 // ----------------Netplan Ethernets--------------------//
+// ----------------for derived device--------------------//
 bool Netplan_Ethernet::parseYamlNode(YAML::Node& node, Netplan_Ethernet* ethernet, const std::string& name){
     if(ethernet == nullptr){
         return false;
@@ -1527,6 +1527,33 @@ bool NetplanConfigMaker::delVitualAddress(const std::string& dev_name, const std
     }
 }
 
+bool NetplanConfigMaker::delVitualAddress(const std::string& ip, const std::string& mask){
+    if(dev_name.empty())
+        return false;
+
+    Netplan_Device* dev_p; 
+
+    // 查找设备，并放入dev_p
+    if ((dev_p = isEthernet(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBond(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isBridge(dev_name)) != nullptr)
+        ;
+    else if ((dev_p = isVlan(dev_name)) != nullptr)
+        ;
+
+    if(dev_p){
+        if(!dev_p->delVitualAddress(ip, mask))
+            return false;
+        else
+            return true;
+    }
+    else{
+        return false;
+    }
+}
+
 bool NetplanConfigMaker::addRoute(const std::string& dev_name,  const std::string& ip, const std::string& mask, const std::string& via){
     if(dev_name.empty())
         return false;
@@ -1579,7 +1606,7 @@ bool NetplanConfigMaker::delRoute(const std::string& dev_name,  const std::strin
     }
 }
 
-bool NetplanConfigMaker::addNameServers(const std::string& dev_name, const std::string& nameserver){
+bool NetplanConfigMaker::addNameServer(const std::string& dev_name, const std::string& nameserver){
     if(dev_name.empty())
         return false;
 
@@ -1596,7 +1623,7 @@ bool NetplanConfigMaker::addNameServers(const std::string& dev_name, const std::
         ;
 
     if(dev_p){
-        dev_p->addNameServers(nameserver);
+        dev_p->addNameServer(nameserver);
         return true;
     }
     else{
@@ -1604,7 +1631,7 @@ bool NetplanConfigMaker::addNameServers(const std::string& dev_name, const std::
     }
 }
 
-bool NetplanConfigMaker::delNameServers(const std::string& dev_name, const std::string& nameserver){
+bool NetplanConfigMaker::delNameServer(const std::string& dev_name, const std::string& nameserver){
     if(dev_name.empty())
         return false;
 
